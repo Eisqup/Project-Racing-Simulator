@@ -320,12 +320,18 @@ function defaultFetchOpts() {
 
 // TODO - Make a fetch call (with error handling!) to each of the following API endpoints 
 
+// GET request to `${SERVER}/api/tracks`
 function getTracks() {
-	// GET request to `${SERVER}/api/tracks`
+	return fetch(`${SERVER}/api/tracks`)
+		.then(result => result.json())
+		.then(result => result)
 }
 
+// GET request to `${SERVER}/api/cars`
 function getRacers() {
-	// GET request to `${SERVER}/api/cars`
+	return fetch(`${SERVER}/api/cars`)
+		.then(result => result.json())
+		.then(result => result)
 }
 
 function createRace(player_id, track_id) {
@@ -343,8 +349,11 @@ function createRace(player_id, track_id) {
 		.catch(err => console.log("Problem with createRace request::", err))
 }
 
+// GET request to `${SERVER}/api/races/${id}`
 function getRace(id) {
-	// GET request to `${SERVER}/api/races/${id}`
+	return fetch(`${SERVER}/api/races/${id}`)
+		.then(result => result.json())
+		.then(result => result)
 }
 
 function startRace(id) {
@@ -356,8 +365,9 @@ function startRace(id) {
 		.catch(err => console.log("Problem with getRace request::", err))
 }
 
+// POST request to `${SERVER}/api/races/${id}/accelerate`
+// options parameter provided as defaultFetchOpts
+// no body or datatype needed for this request
 function accelerate(id) {
-	// POST request to `${SERVER}/api/races/${id}/accelerate`
-	// options parameter provided as defaultFetchOpts
-	// no body or datatype needed for this request
+	fetch(`${SERVER}/api/races/${id}/accelerate`)
 }
