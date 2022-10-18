@@ -74,18 +74,25 @@ async function delay(ms) {
 
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
-	// render starting UI
-	renderAt('#race', renderRaceStartView())
-
 	// TODO - Get player_id and track_id from the store
+
+	let { player_id, track_id } = store
+
+	// render starting UI
+	renderAt('#race', renderRaceStartView(track_id))
 
 	// const race = TODO - invoke the API call to create the race, then save the result
 
+	const race = await createRace(player_id, track_id)
+	console.log(race);
 	// TODO - update the store with the race id
 	// For the API to work properly, the race id should be race id - 1
+	track_id.id = race.Track.id - 1
 
 	// The race has been created, now start the countdown
 	// TODO - call the async function runCountdown
+
+	await runCountdown()
 
 	// TODO - call the async function startRace
 
@@ -121,12 +128,17 @@ async function runCountdown() {
 
 		return new Promise(resolve => {
 			// TODO - use Javascript's built in setInterval method to count down once per second
+			const interval = setInterval(() => {
 
-			// run this DOM manipulation to decrement the countdown for the user
-			document.getElementById('big-numbers').innerHTML = --timer
+				// run this DOM manipulation to decrement the countdown for the user
+				document.getElementById('big-numbers').innerHTML = --timer
 
-			// TODO - if the countdown is done, clear the interval, resolve the promise, and return
-
+				// TODO - if the countdown is done, clear the interval, resolve the promise, and return
+				if (timer === 0) {
+					clearInterval(interval)
+				}
+			}
+				, 1000)
 		})
 	} catch (error) {
 		console.log(error);
@@ -146,6 +158,7 @@ function handleSelectPodRacer(target) {
 	target.classList.add('selected')
 
 	// TODO - save the selected racer to the store
+	store.race_id = target
 }
 
 function handleSelectTrack(target) {
@@ -161,6 +174,8 @@ function handleSelectTrack(target) {
 	target.classList.add('selected')
 
 	// TODO - save the selected track id to the store
+
+	store.track_id = target
 
 }
 
