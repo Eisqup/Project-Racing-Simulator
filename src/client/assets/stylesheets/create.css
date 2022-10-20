@@ -2,14 +2,38 @@
 
 /* -------------------  MOBILE  --------------------- */
 
+
 header {
   background-image: url('https://via.placeholder.com/1150');
+  object-fit: contain;
 }
 
-img {
+.card.podracer img,
+#leaderBoard img {
   height: 50px;
   width: 50px;
+  object-fit: contain;
 }
+
+.card.track {
+  display: block;
+  text-align: center;
+  width: 20%;
+}
+
+.card.track h3 {
+  height: 50%;
+}
+
+.button {
+  object-position: center;
+}
+
+ul {
+  text-align: center;
+  margin: 10px;
+}
+
 
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {}

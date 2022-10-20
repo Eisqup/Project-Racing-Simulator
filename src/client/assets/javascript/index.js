@@ -5,6 +5,7 @@ let store = {
 	track_id: undefined,
 	player_id: undefined,
 	race_id: undefined,
+	raceSegments: undefined,
 }
 
 // We need our javascript to wait until the DOM is loaded
@@ -37,18 +38,40 @@ function setupClickHandlers() {
 		const { target } = event
 
 		// Race track form field
+		//make sure u select the track by clicking anywhere in the area
 		if (target.matches('.card.track')) {
 			handleSelectTrack(target)
+		} else if (target.parentElement.matches('.card.track')) {
+			handleSelectTrack(target.parentElement)
 		}
 
+
 		// Podracer form field
+		//make sure u select the racer by clicking anywhere in the area
 		if (target.matches('.card.podracer')) {
 			handleSelectPodRacer(target)
+		} else if (target.parentElement.matches('.card.podracer')) {
+			handleSelectPodRacer(target.parentElement)
+		} else if (target.parentElement.parentElement.matches('.card.podracer')) {
+			handleSelectPodRacer(target.parentElement.parentElement)
 		}
+
 
 		// Submit create race form
 		if (target.matches('#submit-create-race')) {
 			event.preventDefault()
+
+			//make sure a racer and track is selected
+			if (!store.player_id && !store.track_id) {
+				alert("Please choose a racer and a track!")
+				return
+			} else if (!store.track_id) {
+				alert("Please choose a track!")
+				return
+			} else if (!store.player_id) {
+				alert("Please choose a racer!")
+				return
+			}
 
 			// start race
 			handleCreateRace()
@@ -84,6 +107,9 @@ async function handleCreateRace() {
 	// const race = TODO - invoke the API call to create the race, then save the result
 	const race = await createRace(player_id, track_id)
 
+	// add segments to store
+	store.raceSegments = race.Track.segments.length
+
 	// TODO - update the store with the race id
 	// For the API to work properly, the race id should be race id - 1
 	store.race_id = parseInt(race.ID - 1)
@@ -105,7 +131,7 @@ function runRace(raceID) {
 		return new Promise(resolve => {
 			// TODO - use Javascript's built in setInterval method to get race info every 500ms
 
-			race = async () => {
+			let race = async () => {
 
 				const res = await getRace(raceID)
 
@@ -135,10 +161,14 @@ async function runCountdown() {
 		// wait for the DOM to load
 		await delay(1000)
 		let timer = 3
+		const gasPaddelColors = ["green", "orange", "orange", "red"]
 
 		return new Promise(resolve => {
 			// TODO - use Javascript's built in setInterval method to count down once per second
 			const countDown = () => {
+
+				//start light
+				document.getElementById("gas-peddle").style.backgroundColor = gasPaddelColors[timer - 1]
 
 				// run this DOM manipulation to decrement the countdown for the user
 				document.getElementById('big-numbers').innerHTML = --timer
@@ -265,7 +295,7 @@ function renderCountdown(count) {
 	`
 }
 
-function renderRaceStartView(track, racers) {
+function renderRaceStartView(track) {
 	return `
 		<header>
 			<h1>Race: ${track.name}</h1>
@@ -299,6 +329,17 @@ function resultsView(positions) {
 	`
 }
 
+//Calculated the percent postion
+function mathRacePercent(playerSegment) {
+	if (playerSegment == store.raceSegments) {
+		return "Finish!!!"
+	}
+	return `Percent: ${parseInt(playerSegment / store.raceSegments * 100)}%`
+}
+
+/**something is here wrong in code if the racer finish the race the sorting mess it up... 
+ * if more then one racer is in finish LEaderbord move the first finisher in postion down if the next one finish the game 
+ * */
 function raceProgress(positions) {
 	let userPlayer = positions.find(e => e.id === store.player_id)
 	userPlayer.driver_name += " (you)"
@@ -306,11 +347,26 @@ function raceProgress(positions) {
 	positions = positions.sort((a, b) => (a.segment > b.segment) ? -1 : 1)
 	let count = 1
 
+	//filer the racer which finish the race
+	const finisher = positions.filter(x => x.final_position)
+
+	//runs only if not all racers at the finish
+	if (finisher.length !== positions.length) {
+
+		//remove finisher array elements from positions array and put them on the first position back
+		//to make sure the first finisher stays on first position
+		finisher.forEach(element => {
+			let index = positions.indexOf(element)
+			positions.splice(index, 1)
+			positions.splice((element.final_position - 1), 0, element)
+		});
+	}
+
 	const results = positions.map(p => {
 		return `
 			<tr>
 				<td>
-					<h3>${count++} - ${p.driver_name}<img src="${p.imgSRC}" alt=""></h3>
+					<h3>${count++} - ${p.driver_name}<img src="${p.imgSRC}" alt=""> ${mathRacePercent(p.segment)}</h3>
 				</td>
 			</tr>
 		`
@@ -334,7 +390,7 @@ function renderAt(element, html) {
 
 // ^ Provided code ^ do not remove
 
-//changeRacers
+//changeRacers. Cant add img to data.json file
 const changeRacers = (racers) => {
 	const racersNewArray = [
 		{ name: "Mario", imgSRC: "https://pbs.twimg.com/media/ELOV640XkAAQq_Z?format=png" },
@@ -350,7 +406,7 @@ const changeRacers = (racers) => {
 	})
 }
 
-//changeTracks
+//changeTracks. Cant add img to data.json file
 const changeTracks = (racers) => {
 	const tracksNewArray = [
 		{ name: "New York", imgSRC: "https://mario.wiki.gallery/images/thumb/5/5a/MKT_Icon_New_York_Minute.png/120px-MKT_Icon_New_York_Minute.png" },
