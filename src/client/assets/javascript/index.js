@@ -17,7 +17,7 @@ async function onPageLoad() {
 	try {
 		getTracks()
 			.then(tracks => {
-				const html = renderTrackCards(tracks)
+				const html = renderTrackCards(changeTracks(tracks))
 				renderAt('#tracks', html)
 			})
 
@@ -111,14 +111,14 @@ function runRace(raceID) {
 
 				// TODO - if the race info status property is "in-progress", update the lederboard by calling:
 				if (res.status === "in-progress") {
-					renderAt('#leaderBoard', raceProgress(res.positions))
+					renderAt('#leaderBoard', raceProgress(changeRacers(res.positions)))
 				}
 
 				// TODO - if the race info status property is "finished", run the following:
 				if (res.status === "finished") {
 
 					clearInterval(raceInterval) // to stop the interval from repeating
-					renderAt('#race', resultsView(res.positions)) // to render the results view
+					renderAt('#race', resultsView(changeRacers(res.positions))) // to render the results view
 					resolve(res) // resolve the promise
 				}
 			}
@@ -209,6 +209,7 @@ function renderRacerCars(racers) {
 		`
 	}
 
+
 	const results = racers.map(renderRacerCard).join('')
 
 	return `
@@ -219,14 +220,14 @@ function renderRacerCars(racers) {
 }
 
 function renderRacerCard(racer) {
-	const { id, driver_name, top_speed, acceleration, handling } = racer
+	const { id, driver_name, top_speed, acceleration, handling, imgSRC } = racer
 
 	return `
 		<li class="card podracer" id="${id}">
-			<h3>${driver_name}</h3>
-			<p>${top_speed}</p>
-			<p>${acceleration}</p>
-			<p>${handling}</p>
+			<h3>${driver_name}<img src="${imgSRC}" alt=""></h3>
+			<p>Top Speed: ${top_speed}</p>
+			<p>Acceleration: ${acceleration}</p>
+			<p>Handling: ${handling}</p>
 		</li>
 	`
 }
@@ -248,11 +249,11 @@ function renderTrackCards(tracks) {
 }
 
 function renderTrackCard(track) {
-	const { id, name } = track
+	const { id, name, imgSRC } = track
 
 	return `
 		<li id="${id}" class="card track">
-			<h3>${name}</h3>
+			<h3>${name}</h3><img src="${imgSRC}" alt="">
 		</li>
 	`
 }
@@ -309,7 +310,7 @@ function raceProgress(positions) {
 		return `
 			<tr>
 				<td>
-					<h3>${count++} - ${p.driver_name}</h3>
+					<h3>${count++} - ${p.driver_name}<img src="${p.imgSRC}" alt=""></h3>
 				</td>
 			</tr>
 		`
@@ -332,6 +333,39 @@ function renderAt(element, html) {
 }
 
 // ^ Provided code ^ do not remove
+
+//changeRacers
+const changeRacers = (racers) => {
+	const racersNewArray = [
+		{ name: "Mario", imgSRC: "https://pbs.twimg.com/media/ELOV640XkAAQq_Z?format=png" },
+		{ name: "Luigi", imgSRC: "https://pbs.twimg.com/media/ELOpE1fXUAAIweq?format=png" },
+		{ name: "Bowser", imgSRC: "https://pbs.twimg.com/media/ELSLcR1WkAA_OG-?format=png" },
+		{ name: "Peach", imgSRC: "https://pbs.twimg.com/media/ELRO_LSWkAErb-u?format=png" },
+		{ name: "Toad", imgSRC: "https://pbs.twimg.com/media/ELXX3TGXYAEwOKo?format=png" },
+	]
+	return racers.map((x, i) => {
+		x.driver_name = racersNewArray[i].name
+		x.imgSRC = racersNewArray[i].imgSRC
+		return x
+	})
+}
+
+//changeTracks
+const changeTracks = (racers) => {
+	const tracksNewArray = [
+		{ name: "New York", imgSRC: "https://mario.wiki.gallery/images/thumb/5/5a/MKT_Icon_New_York_Minute.png/120px-MKT_Icon_New_York_Minute.png" },
+		{ name: "Tokio Blur", imgSRC: "https://mario.wiki.gallery/images/thumb/0/06/MKT_Icon_Tokyo_Blur.png/120px-MKT_Icon_Tokyo_Blur.png" },
+		{ name: "Sidney Sprint", imgSRC: "https://mario.wiki.gallery/images/thumb/1/13/MKT_Icon_Sydney_Sprint.png/120px-MKT_Icon_Sydney_Sprint.png" },
+		{ name: "Sky High Sundae", imgSRC: "https://mario.wiki.gallery/images/thumb/d/dd/MKT_Icon_Sky-High_Sundae.png/120px-MKT_Icon_Sky-High_Sundae.png" },
+		{ name: "Singapore Speedway", imgSRC: "https://mario.wiki.gallery/images/thumb/f/fe/MKT_Icon_Singapore_Speedway.png/120px-MKT_Icon_Singapore_Speedway.png" },
+		{ name: "Amsterdam Drift", imgSRC: "https://mario.wiki.gallery/images/thumb/3/38/MKT_Icon_Amsterdam_Drift.png/120px-MKT_Icon_Amsterdam_Drift.png" },
+	]
+	return racers.map((x, i) => {
+		x.name = tracksNewArray[i].name
+		x.imgSRC = tracksNewArray[i].imgSRC
+		return x
+	})
+}
 
 
 // API CALLS ------------------------------------------------
@@ -360,9 +394,11 @@ function getTracks() {
 
 // GET request to `${SERVER}/api/cars`
 function getRacers() {
+
+
 	return fetch(`${SERVER}/api/cars`)
 		.then(result => result.json())
-		.then(result => result)
+		.then(result => changeRacers(result))
 		.catch(err => console.log("Err by getRacers:" + err))
 }
 
