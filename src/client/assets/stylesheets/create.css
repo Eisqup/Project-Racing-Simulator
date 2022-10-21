@@ -34,6 +34,15 @@ ul {
   margin: 10px;
 }
 
+section#accelerate button:active {
+  height: 300px;
+  width: 300px;
+  margin: 30px auto;
+  border-radius: 180%;
+  border-color: rgb(240, 224, 6);
+  cursor: pointer;
+}
+
 
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {}

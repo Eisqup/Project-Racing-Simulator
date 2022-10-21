@@ -330,11 +330,21 @@ function resultsView(positions) {
 }
 
 //Calculated the percent postion
-function mathRacePercent(playerSegment) {
+function mathRacePercent(playerSegment, finalPostion) {
 	if (playerSegment == store.raceSegments) {
-		return "Finish!!!"
+		let returnString = ""
+		if (finalPostion == 1) {
+			returnString += `<img src="https://www.clipartmax.com/png/small/12-120060_trophy-cup-clipart-gallery-gold-cup-clipart-images-gold-trophy-png.png"`
+		} else if (finalPostion == 2) {
+			returnString += `<img src="https://www.clipartmax.com/png/small/191-1919874_3rd-place-trophy-clipart-3rd-place-trophy-clip-art-silver-trophy-png.png">`
+		} else if (finalPostion == 3) {
+			returnString += `<img src="https://www.clipartmax.com/png/small/135-1351162_trophy-clipart-free-to-use-clip-art-resource-gold-trophy-png.png"></img>`
+		}
+		return returnString
 	}
-	return `Percent: ${parseInt(playerSegment / store.raceSegments * 100)}%`
+	return `${parseInt(playerSegment / store.raceSegments * 100)}% <br>
+		<label for="file">Progress:</label>
+		<progress id="file" value="${parseInt(playerSegment / store.raceSegments * 100)}" max="${store.raceSegments / 2}"></progress>`
 }
 
 /**something is here wrong in code if the racer finish the race the sorting mess it up... 
@@ -366,17 +376,18 @@ function raceProgress(positions) {
 		return `
 			<tr>
 				<td>
-					<h3>${count++} - ${p.driver_name}<img src="${p.imgSRC}" alt=""> ${mathRacePercent(p.segment)}</h3>
-				</td>
-			</tr>
+					<h3>${count++} - ${p.driver_name}<img src="${p.imgSRC}">${mathRacePercent(p.segment, p.final_position)}</h3>
+					</td>
+				</tr>
 		`
 	})
 
+	//u forget the .join("") here in main
 	return `
 		<main>
 			<h3>Leaderboard</h3>
 			<section id="leaderBoard">
-				${results}
+				${results.join("")}
 			</section>
 		</main>
 	`
